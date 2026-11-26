@@ -249,6 +249,15 @@ def _update_stats_transactional(
         logging.exception('Aggregated stats validation failed: %s', e)
         return
 
+    logging.error(
+        'DIAG update_stats exp=%s v=%s before=%s adding=%s'
+        % (
+            exp_id,
+            exp_version,
+            exp_stats.num_starts_v2,
+            aggregated_stats['num_starts'],
+        )
+    )
     exp_stats.num_starts_v2 += aggregated_stats['num_starts']
     exp_stats.num_completions_v2 += aggregated_stats['num_completions']
     exp_stats.num_actual_starts_v2 += aggregated_stats['num_actual_starts']
@@ -270,6 +279,10 @@ def _update_stats_transactional(
         )
 
     save_stats_model(exp_stats)
+    logging.error(
+        'DIAG update_stats saved exp=%s v=%s starts=%s'
+        % (exp_id, exp_version, exp_stats.num_starts_v2)
+    )
 
 
 def update_stats(

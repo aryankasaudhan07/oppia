@@ -110,6 +110,16 @@ class StatsEventsHandler(BaseEventHandler):
                 % list(aggregated_stats['state_stats_mapping'].keys())
             )
             return
+        logging.error(
+            'DIAG stats_events exp=%s v=%s latest=%s starts=%s completions=%s'
+            % (
+                exploration_id,
+                exp_version,
+                exp_fetchers.get_exploration_by_id(exploration_id).version,
+                aggregated_stats.get('num_starts'),
+                aggregated_stats.get('num_completions'),
+            )
+        )
         if cls._is_latest_version(exploration_id, exp_version):
             taskqueue_services.defer(
                 feconf.FUNCTION_ID_TO_FUNCTION_NAME_FOR_DEFERRED_JOBS[

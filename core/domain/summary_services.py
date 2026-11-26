@@ -18,6 +18,8 @@
 
 from __future__ import annotations
 
+import logging
+
 from core import feconf, utils
 from core.constants import constants
 from core.domain import (
@@ -611,6 +613,11 @@ def get_displayable_exp_summary_dicts(
         exp_version_references
     )
     view_counts = [exp_stats.num_starts for exp_stats in exp_stats_list]
+    for ref, count in zip(exp_version_references, view_counts):
+        logging.error(
+            'DIAG views exp=%s summary_v=%s views=%s'
+            % (ref.exp_id, ref.version, count)
+        )
 
     entity_translations_map: Dict[str, translation_domain.EntityTranslation] = (
         {}

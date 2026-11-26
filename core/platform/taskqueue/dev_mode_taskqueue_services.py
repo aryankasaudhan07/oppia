@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 
 from core import feconf
@@ -53,6 +54,9 @@ def _task_handler(
             to None if no payload is required.
         queue_name: str. The name of the queue to add the task to.
         task_name: str|None. Optional. The name of the task.
+
+    Raises:
+        Exception. The request to the task URL failed.
     """
     headers: Dict[str, str] = {}
     headers['X-Appengine-QueueName'] = queue_name
@@ -69,12 +73,20 @@ def _task_handler(
         GOOGLE_APP_ENGINE_PORT,
         url,
     )
-    requests.post(
-        complete_url,
-        json=payload,
-        headers=headers,
-        timeout=feconf.DEFAULT_TASKQUEUE_TIMEOUT_SECONDS,
-    )
+    try:
+        response = requests.post(
+            complete_url,
+            json=payload,
+            headers=headers,
+            timeout=feconf.DEFAULT_TASKQUEUE_TIMEOUT_SECONDS,
+        )
+        logging.error(
+            'DIAG task %s %s -> %s'
+            % (queue_name, url, getattr(response, 'status_code', None))
+        )
+    except Exception as e:
+        logging.error('DIAG task %s %s failed: %r' % (queue_name, url, e))
+        raise
 
 
 CLIENT = cloud_tasks_emulator.Emulator(task_handler=_task_handler)
